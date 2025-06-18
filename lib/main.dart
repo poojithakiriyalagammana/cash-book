@@ -69,7 +69,7 @@ class _CashFlowAppState extends State<CashFlowApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'BitzApp',
+      title: 'MoniApp',
       navigatorKey: navigatorKey,
       theme: ThemeData(
         primarySwatch: Colors.blue,
