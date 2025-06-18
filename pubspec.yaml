@@ -1,0 +1,48 @@
+name: cash_expense_manager
+description: "A new Flutter project."
+
+# Prevents accidental publishing to pub.dev
+publish_to: "none"
+
+# App version
+version: 1.0.0+1
+
+# Environment SDK constraint
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Essential packages
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  intl: ^0.20.2
+  cupertino_icons: ^1.0.2
+
+  # Additional Packages
+  path_provider: ^2.1.2
+  permission_handler: ^11.4.0
+  pdf: ^3.10.8
+  excel: ^4.0.0
+  open_file: ^3.3.2
+  share_plus: ^7.2.2
+  math_expressions: ^2.0.0
+  fl_chart: ^0.66.2
+  awesome_notifications: ^0.10.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+  flutter_lints: ^5.0.0 # Recommended linting rules
+
+flutter:
+  uses-material-design: true
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
+  adaptive_icon_foreground: "assets/logo_foreground.png"
