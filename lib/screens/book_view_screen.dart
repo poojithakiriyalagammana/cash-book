@@ -384,7 +384,7 @@ class _BookViewScreenState extends State<BookViewScreen>
         elevation: 0,
         backgroundColor: Colors.white,
         title: Text(
-          'BitzApp',
+          'MoniApp',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
