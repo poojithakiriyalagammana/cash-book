@@ -120,18 +120,9 @@ lib/
 
 ---
 
-## 📸 Screenshots
-
-_Coming soon — add screenshots of your app here for better engagement._
-
----
 
 ## 🤝 Contributing
 
 Pull requests are welcome. For major changes, open an issue first to discuss what you would like to change.
 
 ---
-
-## 📝 License
-
-This project is open-source and free to use.
