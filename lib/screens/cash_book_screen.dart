@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../services/database_helper.dart';
+import '../widgets/transaction_list_item.dart';
 import 'cash_in_screen.dart';
 import 'monthly_expenses_screen.dart';
 import 'edit_earning_types_screen.dart';
@@ -140,18 +141,10 @@ class _CashBookScreenState extends State<CashBookScreen> {
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
                 title: const Text('Export as PDF'),
-                // onTap: () {
-                //   Navigator.pop(context);
-                //   _exportToPDF();
-                // },
               ),
               ListTile(
                 leading: const Icon(Icons.table_chart, color: Colors.green),
                 title: const Text('Export as Excel'),
-                // onTap: () {
-                //   Navigator.pop(context);
-                //   _exportToExcel();
-                // },
               ),
             ],
           ),
@@ -192,6 +185,9 @@ class _CashBookScreenState extends State<CashBookScreen> {
                 leading:
                     const Icon(Icons.category_outlined, color: Colors.orange),
                 title: const Text('Manage Expense Types'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.repeat, color: Colors.purple),
@@ -288,6 +284,11 @@ class _CashBookScreenState extends State<CashBookScreen> {
           IconButton(
             icon: const Icon(Icons.description),
             onPressed: _showExportOptions,
+          ),
+          IconButton(
+            icon: const Icon(Icons.pie_chart),
+            tooltip: 'Pie Charts',
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.more_vert),
@@ -588,8 +589,8 @@ class _CashBookScreenState extends State<CashBookScreen> {
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
-                              // child: TransactionListItem(
-                              //     transaction: transactions[index]),
+                              child: TransactionListItem(
+                                  transaction: transactions[index]),
                             ),
                           ],
                         );
@@ -645,11 +646,6 @@ class _CashBookScreenState extends State<CashBookScreen> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () async {
-                  // await Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => const CashOutScreen()),
-                  // );
                   _refreshData();
                 },
                 style: ElevatedButton.styleFrom(
