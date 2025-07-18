@@ -1,4 +1,4 @@
-import 'package:cash_expense_manager/services/notification_service.dart';
+// import 'package:cash_expense_manager/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/recurring_transaction.dart';
@@ -767,7 +767,7 @@ class _CashInScreenState extends State<CashInScreen> {
 
       // Handle notifications
       if (_enableNotifications) {
-        await NotificationService.checkAndRescheduleNotifications();
+        // await NotificationService.checkAndRescheduleNotifications();
       }
     } else {
       // If not recurring but there was a recurring transaction with similar properties, delete it
@@ -829,7 +829,7 @@ class _CashInScreenState extends State<CashInScreen> {
 
     // Reschedule notifications if enabled
     if (_enableNotifications) {
-      await NotificationService.checkAndRescheduleNotifications();
+      // await NotificationService.checkAndRescheduleNotifications();
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -979,7 +979,7 @@ class _CashInScreenState extends State<CashInScreen> {
 
       // Show immediate test notification
       if (_enableNotifications) {
-        await NotificationService.createTestNotification(recurringTransaction);
+        // await NotificationService.createTestNotification(recurringTransaction);
       }
     }
 

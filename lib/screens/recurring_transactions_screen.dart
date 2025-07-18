@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/recurring_transaction.dart';
 import '../services/database_helper.dart';
-import '../services/notification_service.dart';
+// import '../services/notification_service.dart';
 
 class RecurringTransactionsScreen extends StatelessWidget {
   const RecurringTransactionsScreen({super.key});
@@ -15,7 +15,7 @@ class RecurringTransactionsScreen extends StatelessWidget {
     await DatabaseHelper.instance.updateRecurringTransactionStatus(id, false);
 
     // Reschedule notifications after deletion
-    await NotificationService.scheduleRecurringTransactionNotifications();
+    // await NotificationService.scheduleRecurringTransactionNotifications();
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Recurring transaction deleted')),

@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 // import 'screens/cash_book_screen.dart';
 import 'screens/recurring_transactions_screen.dart';
-import 'services/notification_service.dart';
+// import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize notifications
-  await NotificationService.initialize();
+  // await NotificationService.initialize();
 
   // Check and reschedule notifications for all recurring transactions
-  await NotificationService.checkAndRescheduleNotifications();
+  // await NotificationService.checkAndRescheduleNotifications();
 
   runApp(const CashFlowApp());
 }
@@ -49,7 +49,7 @@ class _CashFlowAppState extends State<CashFlowApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // App came to foreground - check for any pending notifications
-      NotificationService.checkAndRescheduleNotifications();
+      // NotificationService.checkAndRescheduleNotifications();
     }
   }
 

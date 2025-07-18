@@ -1,26 +1,13 @@
-// ignore_for_file: unused_local_variable
-
 import 'dart:io';
-import 'package:cash_expense_manager/screens/transaction_trends_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:excel/excel.dart';
-import 'package:open_file/open_file.dart';
-import 'package:share_plus/share_plus.dart';
 import '../services/database_helper.dart';
-import '../widgets/transaction_list_item.dart';
 import 'cash_in_screen.dart';
-import 'cash_out_screen.dart';
 import 'monthly_expenses_screen.dart';
 import 'edit_earning_types_screen.dart';
-import 'edit_expense_types_screen.dart';
 import '../models/recurring_transaction.dart';
 import 'recurring_transactions_screen.dart';
-import 'cash_pie_chart_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
@@ -153,18 +140,18 @@ class _CashBookScreenState extends State<CashBookScreen> {
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
                 title: const Text('Export as PDF'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _exportToPDF();
-                },
+                // onTap: () {
+                //   Navigator.pop(context);
+                //   _exportToPDF();
+                // },
               ),
               ListTile(
                 leading: const Icon(Icons.table_chart, color: Colors.green),
                 title: const Text('Export as Excel'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _exportToExcel();
-                },
+                // onTap: () {
+                //   Navigator.pop(context);
+                //   _exportToExcel();
+                // },
               ),
             ],
           ),
@@ -205,15 +192,6 @@ class _CashBookScreenState extends State<CashBookScreen> {
                 leading:
                     const Icon(Icons.category_outlined, color: Colors.orange),
                 title: const Text('Manage Expense Types'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EditExpenseTypesScreen(),
-                    ),
-                  );
-                },
               ),
               ListTile(
                 leading: const Icon(Icons.repeat, color: Colors.purple),
@@ -234,12 +212,6 @@ class _CashBookScreenState extends State<CashBookScreen> {
                 title: const Text('Transaction Trends'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ExpenseTrendScreen(),
-                    ),
-                  ).then((_) => _refreshData());
                 },
               ),
             ],
@@ -247,469 +219,6 @@ class _CashBookScreenState extends State<CashBookScreen> {
         );
       },
     );
-  }
-
-  // Method to export data to PDF
-  Future<void> _exportToPDF() async {
-    // First check if we have permission
-    if (!await _checkPermission()) {
-      return;
-    }
-
-    try {
-      // Calculate the start and end dates based on financial start day
-      DateTime startDate;
-      DateTime endDate;
-
-      // If today is before financial start day, it's previous month's period
-      final now = DateTime.now();
-      if (now.day < widget.financialStartDay) {
-        // Period is from previous month's financial start day to this month's day before financial start
-        startDate = DateTime(now.year, now.month - 1, widget.financialStartDay);
-        endDate = DateTime(
-            now.year, now.month, widget.financialStartDay - 1, 23, 59, 59);
-      } else {
-        // Period is from this month's financial start day to next month's day before financial start
-        startDate = DateTime(now.year, now.month, widget.financialStartDay);
-        endDate = DateTime(
-            now.year, now.month + 1, widget.financialStartDay - 1, 23, 59, 59);
-      }
-
-      // Get financial period display string
-      String financialPeriod = _getFinancialPeriodDisplay();
-
-      // Create a PDF document
-      final pdf = pw.Document();
-
-      // Add pages to the PDF
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          build: (pw.Context context) {
-            return [
-              // Header
-              pw.Header(
-                level: 0,
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text('Cash Expense Report - ${widget.bookName}',
-                        style: pw.TextStyle(
-                            fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                    pw.SizedBox(height: 5),
-                    pw.Text('Period: $financialPeriod',
-                        style: pw.TextStyle(fontSize: 14)),
-                  ],
-                ),
-              ),
-
-              pw.SizedBox(height: 10),
-
-              // Summary section
-              pw.Container(
-                padding: const pw.EdgeInsets.all(10),
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(),
-                  borderRadius:
-                      const pw.BorderRadius.all(pw.Radius.circular(5)),
-                ),
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Cash In (+)'),
-                        pw.SizedBox(height: 5),
-                        pw.Text(
-                          'Rs ${NumberFormat('#,##0.00').format(cashIn)}',
-                          style: pw.TextStyle(
-                            color: PdfColors.green,
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Cash Out (-)'),
-                        pw.SizedBox(height: 5),
-                        pw.Text(
-                          'Rs ${NumberFormat('#,##0.00').format(cashOut)}',
-                          style: pw.TextStyle(
-                            color: PdfColors.red,
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Balance'),
-                        pw.SizedBox(height: 5),
-                        pw.Text(
-                          'Rs ${NumberFormat('#,##0.00').format(balance)}',
-                          style: pw.TextStyle(
-                            color:
-                                balance >= 0 ? PdfColors.green : PdfColors.red,
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              pw.SizedBox(height: 20),
-
-              // Transactions table
-              pw.Table.fromTextArray(
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                headerDecoration: const pw.BoxDecoration(
-                  color: PdfColors.grey300,
-                ),
-                cellHeight: 30,
-                cellAlignments: {
-                  0: pw.Alignment.centerLeft,
-                  1: pw.Alignment.centerLeft,
-                  2: pw.Alignment.centerRight,
-                  3: pw.Alignment.center,
-                  4: pw.Alignment.center,
-                },
-                headers: [
-                  'Date & Time',
-                  'Type',
-                  'Amount',
-                  'Category',
-                  'Payment Mode'
-                ],
-                data: transactions.map((transaction) {
-                  return [
-                    DateFormat('dd MMM yyyy HH:mm')
-                        .format(transaction.dateTime),
-                    transaction.transactionTypeName,
-                    'Rs ${NumberFormat('#,##0.00').format(transaction.amount)}',
-                    transaction.type == 'in' ? 'Cash In' : 'Cash Out',
-                    transaction.paymentMode,
-                  ];
-                }).toList(),
-              ),
-
-              pw.SizedBox(height: 20),
-
-              // Footer with date
-              pw.Footer(
-                title: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text(
-                      'Generated on: ${DateFormat('dd MMM yyyy HH:mm').format(DateTime.now())} ',
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ],
-                ),
-              ),
-            ];
-          },
-        ),
-      );
-
-      // Save the PDF to a file
-      final output = await getTemporaryDirectory();
-      final sanitizedBookName = widget.bookName.replaceAll('_', ' ');
-      final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      final filePath =
-          '${output.path}/Cash Expense Report - $sanitizedBookName - $formattedDate.pdf';
-
-      final file = File(filePath);
-      await file.writeAsBytes(await pdf.save());
-
-      // Show success message and share the file
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('PDF exported successfully'),
-          action: SnackBarAction(
-            label: 'Open',
-            onPressed: () {
-              OpenFile.open(filePath);
-            },
-          ),
-        ),
-      );
-
-      // Share the file
-      await Share.shareFiles([filePath], text: 'Cash Expense Report');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error exporting PDF: ${e.toString()}')),
-      );
-    }
-  }
-
-// Method to export data to Excel
-  Future<void> _exportToExcel() async {
-    // First check if we have permission
-    if (!await _checkPermission()) {
-      return;
-    }
-
-    try {
-      // Calculate the start and end dates based on financial start day
-      DateTime startDate;
-      DateTime endDate;
-
-      // If today is before financial start day, it's previous month's period
-      final now = DateTime.now();
-      if (now.day < widget.financialStartDay) {
-        // Period is from previous month's financial start day to this month's day before financial start
-        startDate = DateTime(now.year, now.month - 1, widget.financialStartDay);
-        endDate = DateTime(
-            now.year, now.month, widget.financialStartDay - 1, 23, 59, 59);
-      } else {
-        // Period is from this month's financial start day to next month's day before financial start
-        startDate = DateTime(now.year, now.month, widget.financialStartDay);
-        endDate = DateTime(
-            now.year, now.month + 1, widget.financialStartDay - 1, 23, 59, 59);
-      }
-
-      // Get financial period display string
-      String financialPeriod = _getFinancialPeriodDisplay();
-
-      // Create Excel workbook and sheet
-      final excel = Excel.createExcel();
-      final sheet = excel['Cash Expense Report'];
-
-      // Add headers
-      final headerStyle = CellStyle(
-        backgroundColorHex: getColorFromHex('#CCCCCC'),
-        bold: true,
-        horizontalAlign: HorizontalAlign.Center,
-      );
-
-      // Add title
-      sheet.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('E1'));
-      final titleCell = sheet.cell(CellIndex.indexByString('A1'));
-      titleCell.value = TextCellValue(
-        'Cash Expense Report - ${widget.bookName}',
-      );
-      titleCell.cellStyle = CellStyle(
-        bold: true,
-        fontSize: 16,
-        horizontalAlign: HorizontalAlign.Center,
-      );
-
-      // Add period
-      sheet.merge(CellIndex.indexByString('A2'), CellIndex.indexByString('E2'));
-      final periodCell = sheet.cell(CellIndex.indexByString('A2'));
-      periodCell.value = TextCellValue('Period: $financialPeriod');
-      periodCell.cellStyle = CellStyle(
-        fontSize: 12,
-        horizontalAlign: HorizontalAlign.Center,
-      );
-
-      // Add summary section
-      sheet.merge(CellIndex.indexByString('A4'), CellIndex.indexByString('B4'));
-      sheet.cell(CellIndex.indexByString('A4')).value =
-          TextCellValue('Cash In (+)');
-      sheet.cell(CellIndex.indexByString('A5')).value =
-          TextCellValue('Rs ${cashIn.toStringAsFixed(2)}');
-      sheet.cell(CellIndex.indexByString('A5')).cellStyle = CellStyle(
-        fontColorHex: getColorFromHex('#008000'),
-        bold: true,
-      );
-
-      sheet.merge(CellIndex.indexByString('C4'), CellIndex.indexByString('D4'));
-      sheet.cell(CellIndex.indexByString('C4')).value =
-          TextCellValue('Cash Out (-)');
-      sheet.cell(CellIndex.indexByString('C5')).value =
-          TextCellValue('Rs ${cashOut.toStringAsFixed(2)}');
-      sheet.cell(CellIndex.indexByString('C5')).cellStyle = CellStyle(
-        fontColorHex: getColorFromHex('#FF0000'),
-        bold: true,
-      );
-
-      sheet.cell(CellIndex.indexByString('E4')).value =
-          TextCellValue('Balance');
-      sheet.cell(CellIndex.indexByString('E5')).value =
-          TextCellValue('Rs ${NumberFormat('#,##0.00').format(balance)}');
-      sheet.cell(CellIndex.indexByString('E5')).cellStyle = CellStyle(
-        fontColorHex: getColorFromHex(balance >= 0 ? '#008000' : '#FF0000'),
-        bold: true,
-      );
-
-      // Add financial start day info
-      sheet.merge(CellIndex.indexByString('A7'), CellIndex.indexByString('E7'));
-      sheet.cell(CellIndex.indexByString('A7')).value =
-          TextCellValue('Financial Start Day: ${widget.financialStartDay}');
-
-      // Add header row for transactions
-      final headers = [
-        'Date & Time',
-        'Type',
-        'Amount',
-        'Category',
-        'Payment Mode'
-      ];
-      for (var i = 0; i < headers.length; i++) {
-        final cell =
-            sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 9));
-        cell.value = TextCellValue(headers[i]);
-        cell.cellStyle = headerStyle;
-      }
-
-      // Add transaction data
-      for (var i = 0; i < transactions.length; i++) {
-        final transaction = transactions[i];
-        final row = i + 10; // Starting from row 10 (after headers)
-
-        sheet
-                .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row))
-                .value =
-            TextCellValue(
-                DateFormat('dd MMM yyyy HH:mm').format(transaction.dateTime));
-
-        sheet
-                .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row))
-                .value =
-            TextCellValue(transaction.transactionTypeName.isEmpty
-                ? 'No remark'
-                : transaction.transactionTypeName);
-
-        sheet
-                .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row))
-                .value =
-            TextCellValue(
-                'Rs ${NumberFormat('#,##0.00').format(transaction.amount)}');
-
-        sheet
-                .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row))
-                .value =
-            TextCellValue(transaction.type == 'in' ? 'Cash In' : 'Cash Out');
-
-        sheet
-            .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row))
-            .value = TextCellValue(transaction.paymentMode);
-      }
-
-      // Auto-fit columns
-      for (var i = 0; i < 5; i++) {
-        sheet.setColumnWidth(i, 20);
-      }
-
-      // Save the Excel file
-      final output = await getTemporaryDirectory();
-      final sanitizedBookName = widget.bookName.replaceAll('_', ' ');
-      final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      final filePath =
-          '${output.path}/Cash Expense Report - $sanitizedBookName - $formattedDate.xlsx';
-      final file = File(filePath);
-      await file.writeAsBytes(excel.encode()!);
-
-      // Show success message and share the file
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Excel exported successfully'),
-          action: SnackBarAction(
-            label: 'Open',
-            onPressed: () {
-              OpenFile.open(filePath);
-            },
-          ),
-        ),
-      );
-
-      // Share the file
-      await Share.shareFiles([filePath], text: 'Cash Expense Report');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error exporting Excel: ${e.toString()}')),
-      );
-    }
-  }
-
-// Helper method to get financial period display string
-  String _getFinancialPeriodDisplay() {
-    final DateFormat monthFormat = DateFormat('MMM yyyy');
-    final now = DateTime.now();
-
-    // If financial start day is 1 (default/regular month), only show month and year
-    if (widget.financialStartDay == 1) {
-      return DateFormat('MMMM yyyy').format(now);
-    }
-
-    // Otherwise show the custom financial period
-    DateTime startDate;
-    DateTime endDate;
-
-    if (now.day < widget.financialStartDay) {
-      // Current view is previous month's period
-      startDate = DateTime(now.year, now.month - 1, widget.financialStartDay);
-      endDate = DateTime(now.year, now.month, widget.financialStartDay - 1);
-    } else {
-      // Current view is this month's period
-      startDate = DateTime(now.year, now.month, widget.financialStartDay);
-      endDate = DateTime(now.year, now.month + 1, widget.financialStartDay - 1);
-    }
-
-    return '${widget.financialStartDay} ${monthFormat.format(startDate)} - ${widget.financialStartDay - 1} ${monthFormat.format(endDate)}';
-  }
-
-  // Helper method to check permissions
-  Future<bool> _checkPermission() async {
-    bool hasPermission = false;
-
-    if (Platform.isAndroid) {
-      final sdkVersion = await _getAndroidSdkVersion();
-
-      if (sdkVersion >= 30) {
-        // Android 11+
-        PermissionStatus storageStatus =
-            await Permission.manageExternalStorage.status;
-        if (!storageStatus.isGranted) {
-          storageStatus = await Permission.manageExternalStorage.request();
-        }
-        hasPermission = storageStatus.isGranted;
-      } else {
-        // Android 10 and below
-        PermissionStatus readStatus = await Permission.storage.status;
-        if (!readStatus.isGranted) {
-          readStatus = await Permission.storage.request();
-        }
-        hasPermission = readStatus.isGranted;
-      }
-    } else {
-      // For iOS or other platforms
-      hasPermission = true;
-    }
-
-    if (!hasPermission) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Storage permission is required to export reports'),
-          action: SnackBarAction(
-            label: 'Settings',
-            onPressed: () {
-              openAppSettings();
-            },
-          ),
-        ),
-      );
-      return false;
-    }
-
-    return true;
-  }
-
-  // Helper function to convert hex color string to ExcelColor
-  ExcelColor getColorFromHex(String hexString) {
-    final hexColor = hexString.replaceAll('#', '');
-    // Convert the hex string to an integer
-    final colorInt = int.parse(hexColor, radix: 16);
-    // Create ExcelColor from the integer value
-    return ExcelColor.fromInt(colorInt);
   }
 
   // Modified filter method
@@ -779,16 +288,6 @@ class _CashBookScreenState extends State<CashBookScreen> {
           IconButton(
             icon: const Icon(Icons.description),
             onPressed: _showExportOptions,
-          ),
-          IconButton(
-            icon: const Icon(Icons.pie_chart),
-            tooltip: 'Pie Charts',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CashPieScreen()),
-              );
-            },
           ),
           IconButton(
             icon: const Icon(Icons.more_vert),
@@ -1089,8 +588,8 @@ class _CashBookScreenState extends State<CashBookScreen> {
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
-                              child: TransactionListItem(
-                                  transaction: transactions[index]),
+                              // child: TransactionListItem(
+                              //     transaction: transactions[index]),
                             ),
                           ],
                         );
@@ -1146,11 +645,11 @@ class _CashBookScreenState extends State<CashBookScreen> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const CashOutScreen()),
-                  );
+                  // await Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const CashOutScreen()),
+                  // );
                   _refreshData();
                 },
                 style: ElevatedButton.styleFrom(
